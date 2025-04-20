@@ -3,5 +3,4 @@ __pycache__
 logs/
 .DS_Store
 .idea
-#.ipynb_checkpoints
-#.ipynb
+.ipynb_checkpoints

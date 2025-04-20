@@ -1,3 +1,7 @@
+from typing import Any
+
+from numpy import floating
+
 specification = r'''
 import numpy as np
 
