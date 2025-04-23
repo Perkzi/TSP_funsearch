@@ -6,7 +6,7 @@ import tsplib95
 import matplotlib.pyplot as plt
 import pandas as pd
 with tarfile.open("/content/ALL_tsp.tar.gz", "r:gz") as tar:
-    tar.extractall("tsplib_instances")
+    tar.extractall("/content/TSP_funsearch/tsplib_instances")
 import gzip
 import shutil
 import os
