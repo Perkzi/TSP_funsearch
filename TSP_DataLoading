@@ -11,7 +11,7 @@ import gzip
 import shutil
 import os
 # 解压缩
-def decompress_gz_files(folder="tsplib_instances"):
+def decompress_gz_files(folder="/content/TSP_funsearch/tsplib_instances"):
     for fname in os.listdir(folder):
         if fname.endswith(".tsp.gz"):
             gz_path = os.path.join(folder, fname)
@@ -22,10 +22,10 @@ def decompress_gz_files(folder="tsplib_instances"):
                         shutil.copyfileobj(f_in, f_out)
                 print(f"Decompressed: {fname} → {fname[:-3]}")
 
-decompress_gz_files("tsplib_instances")
+decompress_gz_files("/content/TSP_funsearch/tsplib_instances")
 # ========== 数据加载器 + 构造 FunSearch 格式测试集 ==========
 class TSPLibDataset:
-    def __init__(self, folder="/content/tsplib_instances"):
+    def __init__(self, folder="/content/TSP_funsearch/tsplib_instances"):
         self.folder = folder
         os.makedirs(folder, exist_ok=True)
 
@@ -55,6 +55,7 @@ def build_funsearch_dataset(tsplib_data: dict) -> dict:
     return {name: {"distances": data["distances"]} for name, data in tsplib_data.items()}
 
 
-dataset = TSPLibDataset("tsplib_instances") # /content/tsplib_instances colab上直接用的话
-tsplib_data = dataset.load_instances(["berlin52", "eil76"])
-instances = build_funsearch_dataset(tsplib_data)
+dataset = TSPLibDataset("/content/TSP_funsearch/tsplib_instances")
+# 用法
+# tsplib_data = dataset.load_instances(["berlin52", "eil76"])
+# instances = build_funsearch_dataset(tsplib_data)
