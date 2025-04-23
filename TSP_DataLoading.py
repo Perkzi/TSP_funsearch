@@ -3,8 +3,6 @@ import tarfile
 import os
 import numpy as np
 import tsplib95
-import matplotlib.pyplot as plt
-import pandas as pd
 with tarfile.open("/content/ALL_tsp.tar.gz", "r:gz") as tar:
     tar.extractall("/content/TSP_funsearch/tsplib_instances")
 import gzip
@@ -24,12 +22,6 @@ def decompress_gz_files(folder="/content/TSP_funsearch/tsplib_instances"):
 
 decompress_gz_files("/content/TSP_funsearch/tsplib_instances")
 # ========== 数据加载器 + 构造 FunSearch 格式测试集 ==========
-os
-import gzip
-import numpy as np
-import tsplib95
-import funsearch
-
 class TSPLibDataset:
     def __init__(self, folder="/content/TSP_funsearch/tsplib_instances"):
         self.folder = folder
@@ -92,9 +84,9 @@ tsplib_data3 = dataset.load_instances(["lin318", "pcb442"])
 # instances_PerformanceTesting = build_funsearch_dataset(tsplib_data2)
 # instances_GeneralizationTesting = build_funsearch_dataset(tsplib_data3)
 
-printf("在笔记本里调用: instances_AlgorithmDevelop = build_funsearch_dataset(tsplib_data1)")
-printf("在笔记本里调用: instances_PerformanceTesting = build_funsearch_dataset(tsplib_data2)")
-printf("在笔记本里调用: instances_GeneralizationTesting = build_funsearch_dataset(tsplib_data3)")
+print("在笔记本里调用: instances_AlgorithmDevelop = build_funsearch_dataset(tsplib_data1)")
+print("在笔记本里调用: instances_PerformanceTesting = build_funsearch_dataset(tsplib_data2)")
+print("在笔记本里调用: instances_GeneralizationTesting = build_funsearch_dataset(tsplib_data3)")
 # ------------- examples --------------- #
 # --- Algorithm Development --- #
 # berlin52 52 EUC_2D Yes Standard benchmark with Euclidean distances
