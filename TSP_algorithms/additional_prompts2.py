@@ -1,4 +1,9 @@
 # 把prompt分为两步
+base_prompt = (
+            "Complete a different and more complex Python function. "
+            "Be creative and you can insert multiple if-else and for-loop in the code logic. "
+            "Only output the Python code, no descriptions."
+        )
 
 '''
 这种提示引导模型生成一个结构化、分阶段的解决方案，适合希望看到详细过程、并便于调试和维护的代码。
