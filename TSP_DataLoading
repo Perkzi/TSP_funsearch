@@ -24,6 +24,12 @@ def decompress_gz_files(folder="/content/TSP_funsearch/tsplib_instances"):
 
 decompress_gz_files("/content/TSP_funsearch/tsplib_instances")
 # ========== 数据加载器 + 构造 FunSearch 格式测试集 ==========
+os
+import gzip
+import numpy as np
+import tsplib95
+import funsearch
+
 class TSPLibDataset:
     def __init__(self, folder="/content/TSP_funsearch/tsplib_instances"):
         self.folder = folder
@@ -31,6 +37,7 @@ class TSPLibDataset:
 
     def load_instance(self, name: str):
         tsp_path = os.path.join(self.folder, f"{name}.tsp")
+        tour_path = os.path.join(self.folder, f"{name}.opt.tour")
         if not os.path.exists(tsp_path):
             raise FileNotFoundError(f"{tsp_path} not found. Please ensure it exists.")
         problem = tsplib95.load(tsp_path)
@@ -41,7 +48,22 @@ class TSPLibDataset:
             for j in range(n):
                 if i != j:
                     distances[i, j] = np.linalg.norm(np.array(coords[i]) - np.array(coords[j]))
-        return {"name": name, "dimension": n, "distances": distances, "coords": coords}
+
+        opt_tour = None
+        if os.path.exists(tour_path):
+            try:
+                opt = tsplib95.load(tour_path)
+                opt_tour = list(opt.tours[0])
+            except:
+                print(f"Warning: Failed to load optimal tour from {tour_path}")
+
+        return {
+            "name": name,
+            "dimension": n,
+            "distances": distances,
+            "coords": coords,
+            "optimal_tour": opt_tour
+        }
 
     def load_instances(self, names: list[str]) -> dict:
         return {name: self.load_instance(name) for name in names}
@@ -49,13 +71,32 @@ class TSPLibDataset:
 
 def build_funsearch_dataset(tsplib_data: dict) -> dict:
     """
-    tsplib_data: {'berlin52': {'distances': ndarray, ...}, ...}
-    返回值必须是 dict[name] -> {"distances": ndarray}
+    tsplib_data: {'berlin52': {'distances': ndarray, 'optimal_tour': list, ...}, ...}
+    返回值必须是 dict[name] -> {"distances": ndarray, "optimal_tour": Optional[list]}
     """
-    return {name: {"distances": data["distances"]} for name, data in tsplib_data.items()}
+    return {
+        name: {
+            "distances": data["distances"],
+            "optimal_tour": data.get("optimal_tour")
+        }
+        for name, data in tsplib_data.items()
+    }
 
 
 dataset = TSPLibDataset("/content/TSP_funsearch/tsplib_instances")
-# 用法
-# tsplib_data = dataset.load_instances(["berlin52", "eil76"])
+# 用法：
+# tsplib_data = dataset.load_instances(["berlin52", "eil76"]) #可以随时换需要的
+# instances = build_funsearch_dataset(tsplib_data)
+
+# ------------- examples --------------- #
+# --- Algorithm Development --- #
+# berlin52 52 EUC_2D Yes Standard benchmark with Euclidean distances
+# eil76 76 EUC_2D Yes Small-sized, regularly structured instance 
+# --- Performance Testing --- #
+# kroA100 100 EUC_2D Yes Classic mid-size instance
+# pr124 124 EUC_2D Yes Good for testing generalization
+# d198 198 EUC_2D Yes Mid-sized, realistic urban layout
+# --- Generalization Testing --- #
+# lin318 318 EUC_2D No No optimal tour available; good for large-scale testing
+# pcb442 442 EUC_2D Yes Complex city distribution; useful for robustness testing
 # instances = build_funsearch_dataset(tsplib_data)
