@@ -1,10 +1,6 @@
-import numpy as np
-import time
-import funsearch
 specification = r'''
 import numpy as np
 import time
-import funsearch
 
 def tsp_evaluate(route: list[int], distances: np.ndarray) -> float:
     return (
@@ -97,6 +93,9 @@ def evaluate(instances: dict) -> float:
     return -np.mean(total_costs)
 '''
 
+exit()
+import numpy as np
+import time
 # =========================================================
 # 1) 评估：计算路径长度（最后会自动闭环）
 # =========================================================

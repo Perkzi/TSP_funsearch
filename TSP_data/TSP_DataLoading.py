@@ -3,7 +3,7 @@ import tarfile
 import os
 import numpy as np
 import tsplib95
-with tarfile.open("/content/ALL_tsp.tar.gz", "r:gz") as tar:
+with tarfile.open("/content/TSP_funsearch/TSP_data/ALL_tsp.tar.gz", "r:gz") as tar:
     tar.extractall("/content/TSP_funsearch/tsplib_instances")
 import gzip
 import shutil
@@ -83,10 +83,11 @@ tsplib_data3 = dataset.load_instances(["lin318", "pcb442"])
 # instances_AlgorithmDevelop = build_funsearch_dataset(tsplib_data1)
 # instances_PerformanceTesting = build_funsearch_dataset(tsplib_data2)
 # instances_GeneralizationTesting = build_funsearch_dataset(tsplib_data3)
-
+'''
 print("在笔记本里调用: instances_AlgorithmDevelop = build_funsearch_dataset(tsplib_data1)")
 print("在笔记本里调用: instances_PerformanceTesting = build_funsearch_dataset(tsplib_data2)")
 print("在笔记本里调用: instances_GeneralizationTesting = build_funsearch_dataset(tsplib_data3)")
+'''
 # ------------- examples --------------- #
 # --- Algorithm Development --- #
 # berlin52 52 EUC_2D Yes Standard benchmark with Euclidean distances

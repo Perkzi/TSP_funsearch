@@ -1,15 +1,10 @@
-import os
-import numpy as np
-import tsplib95
-import funsearch
-import time
-import pandas as pd
+
 
 specification = r'''
 import os
 import numpy as np
 import tsplib95
-import funsearch
+
 import time
 import pandas as pd
 
@@ -81,7 +76,13 @@ def evaluate(instances: dict) -> float:
     print(f"平均路径长度: {np.mean(total_costs):.2f}, 平均运行时间: {np.mean(total_times):.3f}s")
     return -np.mean(total_costs)
 '''
+exit()
+import os
+import numpy as np
+import tsplib95
 
+import time
+import pandas as pd
 def tsp_evaluate(route: list[int], distances: np.ndarray) -> float:
     return sum(distances[route[i], route[i + 1]] for i in range(len(route) - 1)) + distances[route[-1], route[0]]
 
