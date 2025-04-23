@@ -1,1 +1,60 @@
+# pip install tsplib95 大前提
+import tarfile
+import os
+import numpy as np
+import tsplib95
+import matplotlib.pyplot as plt
+import pandas as pd
+with tarfile.open("ALL_tsp.tar.gz", "r:gz") as tar:
+    tar.extractall("tsplib_instances")
+import gzip
+import shutil
+import os
+# 解压缩
+def decompress_gz_files(folder="tsplib_instances"):
+    for fname in os.listdir(folder):
+        if fname.endswith(".tsp.gz"):
+            gz_path = os.path.join(folder, fname)
+            tsp_path = os.path.join(folder, fname[:-3])  # remove .gz
+            if not os.path.exists(tsp_path):
+                with gzip.open(gz_path, 'rb') as f_in:
+                    with open(tsp_path, 'wb') as f_out:
+                        shutil.copyfileobj(f_in, f_out)
+                print(f"Decompressed: {fname} → {fname[:-3]}")
 
+decompress_gz_files("tsplib_instances")
+# ========== 数据加载器 + 构造 FunSearch 格式测试集 ==========
+class TSPLibDataset:
+    def __init__(self, folder="/content/tsplib_instances"):
+        self.folder = folder
+        os.makedirs(folder, exist_ok=True)
+
+    def load_instance(self, name: str):
+        tsp_path = os.path.join(self.folder, f"{name}.tsp")
+        if not os.path.exists(tsp_path):
+            raise FileNotFoundError(f"{tsp_path} not found. Please ensure it exists.")
+        problem = tsplib95.load(tsp_path)
+        coords = [problem.node_coords[i + 1] for i in range(problem.dimension)]
+        n = len(coords)
+        distances = np.zeros((n, n))
+        for i in range(n):
+            for j in range(n):
+                if i != j:
+                    distances[i, j] = np.linalg.norm(np.array(coords[i]) - np.array(coords[j]))
+        return {"name": name, "dimension": n, "distances": distances, "coords": coords}
+
+    def load_instances(self, names: list[str]) -> dict:
+        return {name: self.load_instance(name) for name in names}
+
+
+def build_funsearch_dataset(tsplib_data: dict) -> dict:
+    """
+    tsplib_data: {'berlin52': {'distances': ndarray, ...}, ...}
+    返回值必须是 dict[name] -> {"distances": ndarray}
+    """
+    return {name: {"distances": data["distances"]} for name, data in tsplib_data.items()}
+
+
+dataset = TSPLibDataset("tsplib_instances") # /content/tsplib_instances colab上直接用的话
+tsplib_data = dataset.load_instances(["berlin52", "eil76"])
+instances = build_funsearch_dataset(tsplib_data)
