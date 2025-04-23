@@ -87,9 +87,14 @@ dataset = TSPLibDataset("/content/TSP_funsearch/tsplib_instances")
 tsplib_data1 = dataset.load_instances(["berlin52", "eil76"]) 
 tsplib_data2 = dataset.load_instances(["kroA100", "pr124","d198" ])
 tsplib_data3 = dataset.load_instances(["lin318", "pcb442"])
-instances_AlgorithmDevelop = build_funsearch_dataset(tsplib_data1)
-instances_PerformanceTesting = build_funsearch_dataset(tsplib_data2)
-instances_GeneralizationTesting = build_funsearch_dataset(tsplib_data3)
+# --------在笔记本里调用------
+# instances_AlgorithmDevelop = build_funsearch_dataset(tsplib_data1)
+# instances_PerformanceTesting = build_funsearch_dataset(tsplib_data2)
+# instances_GeneralizationTesting = build_funsearch_dataset(tsplib_data3)
+
+printf("在笔记本里调用: instances_AlgorithmDevelop = build_funsearch_dataset(tsplib_data1)")
+printf("在笔记本里调用: instances_PerformanceTesting = build_funsearch_dataset(tsplib_data2)")
+printf("在笔记本里调用: instances_GeneralizationTesting = build_funsearch_dataset(tsplib_data3)") 
 
 # ------------- examples --------------- #
 # --- Algorithm Development --- #
