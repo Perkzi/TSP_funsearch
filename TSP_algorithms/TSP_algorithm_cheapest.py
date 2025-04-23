@@ -93,7 +93,7 @@ def evaluate(instances: dict) -> float:
     return -np.mean(total_costs)
 '''
 
-exit()
+'''
 import numpy as np
 import time
 # =========================================================
@@ -202,3 +202,4 @@ def evaluate(instances: dict) -> float:
         f"平均运行时间: {np.mean(total_times):.3f}s"
     )
     return -np.mean(total_costs)
+'''

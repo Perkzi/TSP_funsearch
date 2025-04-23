@@ -3,7 +3,6 @@ import os
 import gzip
 import numpy as np
 import tsplib95
-import funsearch
 import time
 import pandas as pd
 
@@ -62,7 +61,9 @@ def evaluate(instances: dict) -> float:
     print(f"平均路径长度: {np.mean(total_costs):.2f}, 平均运行时间: {np.mean(total_times):.3f}s")
     return -np.mean(total_costs)
 '''
-exit()
+
+
+'''
 import os
 import numpy as np
 import tsplib95
@@ -130,3 +131,4 @@ def evaluate(instances: dict) -> float:
 # evaluate(instances_AlgorithmDevelop)
 # evaluate(instances_PerformanceTesting)
 # evaluate(instances_GeneralizationTesting)
+'''
