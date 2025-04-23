@@ -5,7 +5,7 @@ import numpy as np
 import tsplib95
 import matplotlib.pyplot as plt
 import pandas as pd
-with tarfile.open("ALL_tsp.tar.gz", "r:gz") as tar:
+with tarfile.open("/content/ALL_tsp.tar.gz", "r:gz") as tar:
     tar.extractall("tsplib_instances")
 import gzip
 import shutil
