@@ -1,0 +1,59 @@
+import os
+import gzip
+import numpy as np
+import tsplib95
+import funsearch
+
+def tsp_evaluate(route: list[int], distances: np.ndarray) -> float:
+    return sum(distances[route[i], route[i + 1]] for i in range(len(route) - 1)) + distances[route[-1], route[0]]
+
+
+def tsp_solve(distances: np.ndarray, start_city: int = 0) -> list[int]:
+    num_cities = distances.shape[0]
+    visited = [start_city]
+    current_city = start_city
+    for _ in range(num_cities - 1):
+        unvisited = [i for i in range(num_cities) if i not in visited]
+        next_city = tsp_priority(current_city, unvisited, distances)
+        visited.append(next_city)
+        current_city = next_city
+    return visited
+
+
+@funsearch.evolve
+def tsp_priority(current_city: int, unvisited: list[int], distances: np.ndarray) -> int:
+    # 选择离所有 visited 城市最远的城市（探索性）
+    farthest_score = -1
+    best_city = unvisited[0]
+    for city in unvisited:
+        avg_dist = np.mean(distances[city])  # 远离中心
+        if avg_dist > farthest_score:
+            farthest_score = avg_dist
+            best_city = city
+    return best_city
+
+
+@funsearch.run
+def evaluate(instances: dict) -> float:
+    total_costs = []
+    compare_with_optimal = True  # 可选：如果不需要对比最优路径，请将此行改为 False 或注释掉
+
+    for name, instance in instances.items():
+        distances = instance["distances"]
+        route = tsp_solve(distances)
+        cost = tsp_evaluate(route, distances)
+        total_costs.append(cost)
+
+        if compare_with_optimal and instance.get("optimal_tour"):
+            opt_cost = tsp_evaluate(instance["optimal_tour"], distances)
+            approx = cost / opt_cost
+            print(f"{name}: 你的路径长度 = {cost:.2f}, 最优路径 = {opt_cost:.2f}, 近似比 = {approx:.4f}")
+
+    return -np.mean(total_costs)
+
+
+# 用法：一定先加载数据集
+
+# evaluate(instances_AlgorithmDevelop)
+# evaluate(instances_PerformanceTesting)
+# evaluate(instances_GeneralizationTesting)
