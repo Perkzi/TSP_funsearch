@@ -84,9 +84,12 @@ def build_funsearch_dataset(tsplib_data: dict) -> dict:
 
 
 dataset = TSPLibDataset("/content/TSP_funsearch/tsplib_instances")
-# 用法：
-# tsplib_data = dataset.load_instances(["berlin52", "eil76"]) #可以随时换需要的
-# instances = build_funsearch_dataset(tsplib_data)
+tsplib_data1 = dataset.load_instances(["berlin52", "eil76"]) 
+tsplib_data2 = dataset.load_instances(["kroA100", "pr124","d198" ])
+tsplib_data3 = dataset.load_instances(["lin318", "pcb442"])
+instances_AlgorithmDevelop = build_funsearch_dataset(tsplib_data1)
+instances_PerformanceTesting = build_funsearch_dataset(tsplib_data2)
+instances_GeneralizationTesting = build_funsearch_dataset(tsplib_data3)
 
 # ------------- examples --------------- #
 # --- Algorithm Development --- #
@@ -99,4 +102,4 @@ dataset = TSPLibDataset("/content/TSP_funsearch/tsplib_instances")
 # --- Generalization Testing --- #
 # lin318 318 EUC_2D No No optimal tour available; good for large-scale testing
 # pcb442 442 EUC_2D Yes Complex city distribution; useful for robustness testing
-# instances = build_funsearch_dataset(tsplib_data)
+
