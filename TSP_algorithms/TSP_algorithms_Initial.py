@@ -7,12 +7,14 @@ import numpy as np
 import tsplib95
 
 # --------------------------- Core TSP routines --------------------------- #
-
 def tsp_evaluate(route: List[int], dist: np.ndarray) -> float:
-    """Return total length of *route* under *dist* matrix."""
-    idx = np.arange(len(route))
-    return float(dist[route, route[(idx + 1) % len(route)]].sum())
-
+    """Given a city tour and distance matrix, return total route length (including returning to start)."""
+    route = np.asarray(route)
+    n = len(route)
+    cost = 0.0
+    for i in range(n):
+        cost += dist[route[i], route[(i+1)%n]]
+    return float(cost)
 
 # ---- small helpers ----------------------------------------------------- #
 
@@ -26,6 +28,7 @@ def _arg_best(prio: np.ndarray) -> int:
     return int(np.argmax(prio))
 
 # ----------------------- FunSearch evolve target ------------------------ #
+# import funsearch  # type: ignore  # Provided by the FunSearch runtime
 
 @funsearch.evolve
 def tsp_priority(distances_row: np.ndarray, mean_d: float, std_d: float) -> np.ndarray:
@@ -33,6 +36,7 @@ def tsp_priority(distances_row: np.ndarray, mean_d: float, std_d: float) -> np.n
 
     这里用 -((d-mean)/std)^2 公式，FunSearch 会自动进化更好的表达式。"""
     z = (distances_row - mean_d) / (std_d + 1e-9)
+    # print(z)
     return -z ** 2
 
 # --------------------------- TSP solver --------------------------------- #
@@ -71,7 +75,8 @@ def evaluate(instances: Dict[str, Dict[str, object]]) -> float:
         # Optimal reference (optional)
         opt_len: float | None = None
         if "optimal_tour" in inst and inst["optimal_tour"] is not None:
-            tour = inst["optimal_tour"]
+            tour = np.asarray(inst["optimal_tour"]).flatten()
+            # tour = inst["optimal_tour"]
             idx = np.arange(len(tour))
             opt_len = float(dist[tour, tour[(idx + 1) % len(tour)]].sum())
 
