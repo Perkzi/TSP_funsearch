@@ -29,7 +29,7 @@ def _arg_best(prio: np.ndarray) -> int:
 # ----------------------- FunSearch evolve target ------------------------ #
 # import funsearch  # type: ignore  # Provided by the FunSearch runtime
 
-# @funsearch.evolve
+@funsearch.evolve
 def tsp_priority(distances_row: np.ndarray, mean_d: float, std_d: float) -> np.ndarray:
     """给定当前城市到候选城市距离向量，返回优先度（越大越好）。
 
@@ -60,7 +60,7 @@ def tsp_solve(dist: np.ndarray, start: int = 0) -> List[int]:
 
 # ------------------------ FunSearch evaluate ---------------------------- #
 
-# @funsearch.run  # FunSearch maximises this score
+@funsearch.run  # FunSearch maximises this score
 def evaluate(instances: Dict[str, Dict[str, object]]) -> float:
     total_costs: List[float] = []
     total_times: List[float] = []
