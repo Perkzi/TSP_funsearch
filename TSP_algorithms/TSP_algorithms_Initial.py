@@ -1,5 +1,4 @@
 specification = r'''
-from __future__ import annotations
 import time
 from pathlib import Path
 from typing import Dict, List, Tuple
@@ -30,7 +29,7 @@ def _arg_best(prio: np.ndarray) -> int:
 # ----------------------- FunSearch evolve target ------------------------ #
 # import funsearch  # type: ignore  # Provided by the FunSearch runtime
 
-@funsearch.evolve
+# @funsearch.evolve
 def tsp_priority(distances_row: np.ndarray, mean_d: float, std_d: float) -> np.ndarray:
     """给定当前城市到候选城市距离向量，返回优先度（越大越好）。
 
@@ -52,6 +51,8 @@ def tsp_solve(dist: np.ndarray, start: int = 0) -> List[int]:
         unvisited = _get_unvisited(n, visited)
         prio = tsp_priority(dist[current, unvisited], mean_d, std_d)
         next_city = int(unvisited[_arg_best(prio)])
+        if n <= 100 or step % 10 == 0:  # 城市数小于100每步都打，否则每10步打一次
+            print(f"    Step {step+1}/{n-1}: {current} -> {next_city} (distance={dist[current, next_city]:.1f})")
         tour.append(next_city)
         visited.add(next_city)
         current = next_city
@@ -59,12 +60,13 @@ def tsp_solve(dist: np.ndarray, start: int = 0) -> List[int]:
 
 # ------------------------ FunSearch evaluate ---------------------------- #
 
-@funsearch.run  # FunSearch maximises this score
+# @funsearch.run  # FunSearch maximises this score
 def evaluate(instances: Dict[str, Dict[str, object]]) -> float:
     total_costs: List[float] = []
     total_times: List[float] = []
 
     for name, inst in instances.items():
+        print(f"Evaluating instance: {name}")
         dist: np.ndarray = inst["distances"]  # type: ignore
 
         t0 = time.perf_counter()
@@ -99,4 +101,7 @@ def evaluate(instances: Dict[str, Dict[str, object]]) -> float:
 
     print(f"平均路径 = {mean_cost:.1f}, 平均时间 = {np.mean(total_times):.3f}s")
     return -mean_cost
+
+score = evaluate(dataset_to_eval)
+print('Score =', score)
 '''
