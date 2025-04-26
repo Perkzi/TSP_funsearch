@@ -25,7 +25,7 @@ def _arg_best(prio: np.ndarray) -> int:
     return int(np.argmax(prio))
 
 # ----------------------- FunSearch evolve target ------------------------ #
-import funsearch  # type: ignore  # Provided by the FunSearch runtime
+# import funsearch  # type: ignore  # Provided by the FunSearch runtime
 
 # @funsearch.evolve
 def tsp_priority(distances_row: np.ndarray, mean_d: float, std_d: float) -> np.ndarray:
