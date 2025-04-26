@@ -6,11 +6,6 @@ import numpy as np
 import tsplib95
 
 # --------------------------- Core TSP routines --------------------------- #
-
-# def tsp_evaluate(route: List[int], dist: np.ndarray) -> float:
-#     """Return total length of *route* under *dist* matrix."""
-#     idx = np.arange(len(route))
-#     return float(dist[route, route[(idx + 1) % len(route)]].sum())
 def tsp_evaluate(route: List[int], dist: np.ndarray) -> float:
     """Given a city tour and distance matrix, return total route length (including returning to start)."""
     route = np.asarray(route)
