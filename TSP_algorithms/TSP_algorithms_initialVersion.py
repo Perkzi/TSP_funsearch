@@ -35,6 +35,7 @@ def tsp_priority(distances_row: np.ndarray, mean_d: float, std_d: float) -> np.n
 
     这里用 -((d-mean)/std)^2 公式，FunSearch 会自动进化更好的表达式。"""
     z = (distances_row - mean_d) / (std_d + 1e-9)
+    # print(z)
     return -z ** 2
 
 # --------------------------- TSP solver --------------------------------- #
@@ -50,6 +51,8 @@ def tsp_solve(dist: np.ndarray, start: int = 0) -> List[int]:
         unvisited = _get_unvisited(n, visited)
         prio = tsp_priority(dist[current, unvisited], mean_d, std_d)
         next_city = int(unvisited[_arg_best(prio)])
+        if n <= 100 or step % 10 == 0:  # 城市数小于100每步都打，否则每10步打一次
+            print(f"    Step {step+1}/{n-1}: {current} -> {next_city} (distance={dist[current, next_city]:.1f})")
         tour.append(next_city)
         visited.add(next_city)
         current = next_city
@@ -63,6 +66,7 @@ def evaluate(instances: Dict[str, Dict[str, object]]) -> float:
     total_times: List[float] = []
 
     for name, inst in instances.items():
+        print(f"Evaluating instance: {name}")
         dist: np.ndarray = inst["distances"]  # type: ignore
 
         t0 = time.perf_counter()
@@ -73,7 +77,8 @@ def evaluate(instances: Dict[str, Dict[str, object]]) -> float:
         # Optimal reference (optional)
         opt_len: float | None = None
         if "optimal_tour" in inst and inst["optimal_tour"] is not None:
-            tour = inst["optimal_tour"]
+            tour = np.asarray(inst["optimal_tour"]).flatten()
+            # tour = inst["optimal_tour"]
             idx = np.arange(len(tour))
             opt_len = float(dist[tour, tour[(idx + 1) % len(tour)]].sum())
 
@@ -96,3 +101,6 @@ def evaluate(instances: Dict[str, Dict[str, object]]) -> float:
 
     print(f"平均路径 = {mean_cost:.1f}, 平均时间 = {np.mean(total_times):.3f}s")
     return -mean_cost
+
+score = evaluate(dataset_to_eval)
+print('Score =', score)
