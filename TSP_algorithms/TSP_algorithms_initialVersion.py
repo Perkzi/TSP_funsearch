@@ -9,8 +9,11 @@ import tsplib95
 def tsp_evaluate(route: List[int], dist: np.ndarray) -> float:
     """Given a city tour and distance matrix, return total route length (including returning to start)."""
     route = np.asarray(route)
-    idx = np.arange(len(route))
-    return float(dist[route, route[(idx + 1) % len(route)]].sum())
+    n = len(route)
+    cost = 0.0
+    for i in range(n):
+        cost += dist[route[i], route[(i+1)%n]]
+    return float(cost)
 
 # ---- small helpers ----------------------------------------------------- #
 
