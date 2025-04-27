@@ -30,12 +30,8 @@ def _arg_best(prio: np.ndarray) -> int:
 # import funsearch  # type: ignore  # Provided by the FunSearch runtime
 
 @funsearch.evolve
-def tsp_priority(distances_row: np.ndarray, mean_d: float, std_d: float) -> np.ndarray:
-    """给定当前城市到候选城市距离向量，返回优先度（越大越好）。
-
-    这里用 -((d-mean)/std)^2 公式，FunSearch 会自动进化更好的表达式。"""
-    z = (distances_row - mean_d) / (std_d + 1e-9)
-    # print(z)
+def tsp_priority(distance: float, mean_d: float, std_d: float) -> float:
+    z = (distance - mean_d) / (std_d + 1e-9)
     return -z ** 2
 
 # --------------------------- TSP solver --------------------------------- #
@@ -49,10 +45,10 @@ def tsp_solve(dist: np.ndarray, start: int = 0) -> List[int]:
     current = start
     for _ in range(n - 1):
         unvisited = _get_unvisited(n, visited)
-        prio = tsp_priority(dist[current, unvisited], mean_d, std_d)
-        next_city = int(unvisited[_arg_best(prio)])
-        if n <= 100 or step % 10 == 0:  # 城市数小于100每步都打，否则每10步打一次
-            print(f"    Step {step+1}/{n-1}: {current} -> {next_city} (distance={dist[current, next_city]:.1f})")
+        priorities = np.array([
+            tsp_priority(dist[current, city], mean_d, std_d) for city in unvisited
+        ])
+        next_city = int(unvisited[_arg_best(priorities)])
         tour.append(next_city)
         visited.add(next_city)
         current = next_city
