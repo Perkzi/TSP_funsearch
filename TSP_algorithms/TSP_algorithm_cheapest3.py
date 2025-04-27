@@ -68,7 +68,7 @@ def tsp_solve(dist: np.ndarray, start: int = 0) -> list[int]:
             # Compute priority scores for all unvisited cities
             priority = tsp_priority(
                 start_idx=start,
-                current_idx=visited[-1],
+                current_idx=tour[-1],
                 candidate_idx=candidate,
                 unvisited=unvisited,
                 distances_row=distances_row

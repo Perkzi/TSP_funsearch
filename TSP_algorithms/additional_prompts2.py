@@ -5,6 +5,14 @@ base_prompt = (
             "Only output the Python code, no descriptions."
         )
 
+base_prompt2 = (
+            "Complete a different and more complex Python function. "
+            "Be creative and you can insert multiple if-else and for-loop in the code logic. "
+            "Only output the Python code without any additional explanations. "
+            "Do not alter the input/output logic of the tsp_priority function (ensure it only returns a single float). "
+            "Do not modify the parameter description in the tsp_priority function."
+        )
+
 '''
 这种提示引导模型生成一个结构化、分阶段的解决方案，适合希望看到详细过程、并便于调试和维护的代码。
 逐步拆解有助于对算法进行深入检查，但可能会使代码较长，适合教学或实验阶段
