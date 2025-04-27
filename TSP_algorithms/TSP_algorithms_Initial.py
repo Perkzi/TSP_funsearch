@@ -58,8 +58,8 @@ def tsp_priority(
     candidate_distances = distances_row[candidate_idxs]
 
     # Standardize based on candidate distances
-    mean_d = np.mean(candidate_distances)
-    std_d = np.std(candidate_distances) + 1e-9  # avoid division by zero
+    # mean_d = np.mean(candidate_distances)
+    # std_d = np.std(candidate_distances) + 1e-9  # avoid division by zero
 
     z = distance
 
@@ -72,15 +72,25 @@ def tsp_priority(
 # --------------------------- TSP solver --------------------------------- #
 
 def tsp_solve(dist: np.ndarray, start: int = 0) -> List[int]:
+    """
+    Solve the TSP using a greedy heuristic based on the tsp_priority function.
+
+    Args:
+        dist (np.ndarray): Distance matrix, where dist[i, j] is the distance from city i to city j.
+        start (int, optional): Starting city index. Defaults to 0.
+
+    Returns:
+        List[int]: Ordered list of city indices representing the tour.
+    """
     n = dist.shape[0]
     visited: set[int] = {start}
     tour: List[int] = [start]
-    # mean_d, std_d = float(dist.mean()), float(dist.std())
 
     current = start
     for _ in range(n - 1):
-        unvisited = _get_unvisited(n, visited)
-        distances_row = dist[current]
+        unvisited = _get_unvisited(n, visited)  # list of candidate indices
+        distances_row = dist[current]  # 当前城市到所有城市的距离
+        
         priorities = []
         for candidate_idx in unvisited:
             priority = tsp_priority(
@@ -96,6 +106,7 @@ def tsp_solve(dist: np.ndarray, start: int = 0) -> List[int]:
         tour.append(next_city)
         visited.add(next_city)
         current = next_city
+
     return tour
 
 # ------------------------ FunSearch evaluate ---------------------------- #
