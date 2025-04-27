@@ -45,42 +45,42 @@ def tsp_priority(
         float: priority score for the candidate city.
                     Higher score means the city is more preferred.
     """
-    # --- 1. 基础部分：比较当前城市到候选城市的直线距离 和 未访问城市的平均距离 ---
-    n_cities = len(unvisited)
-    total_distance = 0.0
-    for i in range(n_cities):
-        total_distance += distances_row[unvisited[i]]
-
-    avg_distance = total_distance / n_cities
     direct_distance = distances_row[current_idx]
 
-    if direct_distance < avg_distance:
-        priority_score = -(direct_distance - avg_distance)
-    else:
-        priority_score = -(direct_distance + avg_distance)
+    return -direct_distance
 
-    # --- 2. 特殊条件：优先起点相关或者特定距离较小的城市 ---
-    if start_idx == current_idx:
-        priority_score += 10
-    elif start_idx == candidate_idx:
-        priority_score += 5
-    elif direct_distance < avg_distance / 2:
-        priority_score += 3
+def tsp_solve(dist: np.ndarray, start: int = 0) -> list[int]:
+    n = dist.shape[0]
+    visited: set[int] = {start}
+    tour: List[int] = [start]
 
-    # --- 3. 路径优化逻辑：倾向于离当前更近的城市 ---
-    path_optimization_score = 0
-    for i in range(n_cities):
-        if distances_row[unvisited[i]] < avg_distance:
-            path_optimization_score += 1
-    priority_score += path_optimization_score
+    for _ in range(n - 1):
+        # Find unvisited cities
+        unvisited = _get_unvisited(n, visited)
+        
+        best_candidate = -1
+        best_priority = -np.inf
+            
+        for candidate in unvisited:
+            # Distances from candidate city to all cities
+            distances_row = dist[candidate]
+    
+            # Compute priority scores for all unvisited cities
+            priority = tsp_priority(
+                start_idx=start,
+                current_idx=tour[-1],
+                candidate_idx=candidate,
+                unvisited=unvisited,
+                distances_row=distances_row
+            )
+            if priority>best_priority:
+                best_candidate = candidate
+                best_priority = priority 
 
-    # --- 4. 环路行为优化：优先靠近起点的城市 ---
-    if candidate_idx == start_idx:
-        priority_score += 7
-    elif abs(candidate_idx - start_idx) == 1 or abs(candidate_idx - start_idx) == n_cities - 1:
-        priority_score += 4
-
-    return priority_score
+        # Update tour
+        tour.append(best_candidate)
+        visited.add(best_candidate)
+    return tour # 不含重复首尾
 
 @funsearch.run
 def evaluate(instances: dict) -> float:
@@ -112,5 +112,9 @@ def evaluate(instances: dict) -> float:
         else:
             print(f"    路径 = {cost:.0f}, 时间 = {elapsed:.3f}s")
 
-    return -np.mean(total_costs)
+    total_costs = np.array(total_costs)
+    weights = total_costs + 1e-6  # 每个cost作为自己的权重
+    weighted_mean = np.sum(total_costs * weights) / np.sum(weights)
+    
+    return -weighted_mean
 '''
