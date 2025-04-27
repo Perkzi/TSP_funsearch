@@ -61,47 +61,29 @@ def tsp_solve(dist: np.ndarray, start: int = 0) -> List[int]:
 # ------------------------ FunSearch evaluate ---------------------------- #
 
 @funsearch.run  # FunSearch maximises this score
-def evaluate(instances: Dict[str, Dict[str, object]]) -> float:
-    total_costs: List[float] = []
-    total_times: List[float] = []
+def evaluate(instance: Dict[str, object]) -> float:
+    """评估单个实例，不是多个！"""
+    print("Evaluating a single instance...")
 
-    for name, inst in instances.items():
-        print(f"Evaluating instance: {name}")
-        dist: np.ndarray = inst["distances"]  # type: ignore
+    dist: np.ndarray = instance["distances"]  # type: ignore
 
-        t0 = time.perf_counter()
-        route = tsp_solve(dist)
-        elapsed = time.perf_counter() - t0
-        cost = tsp_evaluate(route, dist)
+    t0 = time.perf_counter()
+    route = tsp_solve(dist)
+    elapsed = time.perf_counter() - t0
+    cost = tsp_evaluate(route, dist)
 
-        # Optimal reference (optional)
-        opt_len: float | None = None
-        if "optimal_tour" in inst and inst["optimal_tour"] is not None:
-            tour = np.asarray(inst["optimal_tour"]).flatten()
-            # tour = inst["optimal_tour"]
-            idx = np.arange(len(tour))
-            opt_len = float(dist[tour, tour[(idx + 1) % len(tour)]].sum())
+    # Optimal reference (optional)
+    opt_len: float | None = None
+    if "optimal_tour" in instance and instance["optimal_tour"] is not None:
+        tour = np.asarray(instance["optimal_tour"]).flatten()
+        idx = np.arange(len(tour))
+        opt_len = float(dist[tour, tour[(idx + 1) % len(tour)]].sum())
 
-        if opt_len is not None:
-            approx = cost / opt_len
-            print(f"{name}: 路径 = {cost:.0f}, 最优 = {opt_len:.0f}, 近似比 = {approx:.4f}, 时间 = {elapsed:.3f}s")
-        else:
-            print(f"{name}: 路径 = {cost:.0f}, 时间 = {elapsed:.3f}s")
+    if opt_len is not None:
+        approx = cost / opt_len
+        print(f"    路径 = {cost:.0f}, 最优 = {opt_len:.0f}, 近似比 = {approx:.4f}, 时间 = {elapsed:.3f}s")
+    else:
+        print(f"    路径 = {cost:.0f}, 时间 = {elapsed:.3f}s")
 
-        total_costs.append(cost)
-        total_times.append(elapsed)
-
-    # ----- 计算平均得分（负号 → 最小化路径长度）----- #
-    if not total_costs:
-        return -1e9  # 严罚空实例
-
-    mean_cost = float(np.nanmean(total_costs))
-    if not np.isfinite(mean_cost):
-        return -1e9
-
-    print(f"平均路径 = {mean_cost:.1f}, 平均时间 = {np.mean(total_times):.3f}s")
-    return -mean_cost
-
-score = evaluate(dataset_to_eval)
-print('Score =', score)
+    return -cost  # 注意这里只返回单个cost，不再是mean了！
 '''
