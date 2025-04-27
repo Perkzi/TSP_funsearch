@@ -1,4 +1,5 @@
 specification = r'''
+from __future__ import annotations
 import time
 from pathlib import Path
 from typing import Dict, List, Tuple
@@ -12,7 +13,7 @@ def tsp_evaluate(route: List[int], dist: np.ndarray) -> float:
     n = len(route)
     cost = 0.0
     for i in range(n):
-        cost += dist[route[i], route[(i+1)%n]]
+        cost += dist[route[i], route[(i+1) % n]]
     return float(cost)
 
 # ---- small helpers ----------------------------------------------------- #
@@ -22,87 +23,85 @@ def _get_unvisited(n: int, visited: set[int]) -> np.ndarray:
     mask[list(visited)] = False
     return np.nonzero(mask)[0]
 
-
 def _arg_best(prio: np.ndarray) -> int:
     return int(np.argmax(prio))
 
 # ----------------------- FunSearch evolve target ------------------------ #
+
 # import funsearch  # type: ignore  # Provided by the FunSearch runtime
 
 @funsearch.evolve
 def tsp_priority(
     start_idx: int,
     current_idx: int,
-    candidate_idx: int,
-    distances_row: np.ndarray,
-    candidate_idxs: List[int]
-) -> float:
+    candidate_idxs: List[int],
+    distances_row: np.ndarray
+) -> np.ndarray:
     """
-    Calculate the priority score for a single candidate city from the current city.
+    Calculate priority scores for all candidate cities at once.
 
     Args:
-        start_idx (int): Index of the starting city (may be used for future enhancements).
-        current_idx (int): Index of the current city (the city we are currently at).
-        candidate_idx (int): Index of the candidate city to be evaluated.
-        distances_row (np.ndarray): 1D array where distances_row[i] is the distance from current city to city i.
-        candidate_idxs (List[int]): List of indices of all candidate (unvisited) cities.
+        start_idx (int): Index of the starting city (reserved for future use).
+        current_idx (int): Index of the current city.
+        candidate_idxs (List[int]): List of indices of candidate cities (unvisited cities).
+        distances_row (np.ndarray): Distances from the current city to all other cities.
 
     Returns:
-        float: Priority score for the candidate city.
-               Higher score means higher priority for selection.
+        np.ndarray: An array of priority scores for the candidate cities.
+                    Higher score means the city is more preferred.
     """
-    # Distance from current city to candidate city
-    distance = distances_row[candidate_idx]
-
-    # We can also use all candidate distances if needed
     candidate_distances = distances_row[candidate_idxs]
 
-    # Standardize based on candidate distances
-    # mean_d = np.mean(candidate_distances)
-    # std_d = np.std(candidate_distances) + 1e-9  # avoid division by zero
+    # You can design any transformation here.
+    mean_d = np.mean(candidate_distances)
+    std_d = np.std(candidate_distances) + 1e-9
 
-    z = distance
+    z = (candidate_distances - mean_d) / std_d
 
-    # Priority design: cities with distance close to mean are prioritized
-    priority = -np.log(np.abs(z) + 1e-9)
+    # Priority: cities closer to mean are preferred (you can customize here!)
+    priorities = -np.log(np.abs(z) + 1e-9)
 
-    return priority
-
+    return priorities
 
 # --------------------------- TSP solver --------------------------------- #
 
 def tsp_solve(dist: np.ndarray, start: int = 0) -> List[int]:
     """
-    Solve the TSP using a greedy heuristic based on the tsp_priority function.
+    Solve TSP using greedy priority-based heuristic.
 
     Args:
-        dist (np.ndarray): Distance matrix, where dist[i, j] is the distance from city i to city j.
-        start (int, optional): Starting city index. Defaults to 0.
+        dist (np.ndarray): 2D array, distance matrix between cities. dist[i, j] is distance from city i to city j.
+        start (int): Index of starting city. Default is 0.
 
     Returns:
-        List[int]: Ordered list of city indices representing the tour.
+        List[int]: The ordered list of city indices representing the tour.
     """
     n = dist.shape[0]
     visited: set[int] = {start}
     tour: List[int] = [start]
 
     current = start
+
     for _ in range(n - 1):
-        unvisited = _get_unvisited(n, visited)  # list of candidate indices
-        distances_row = dist[current]  # 当前城市到所有城市的距离
+        # Find unvisited cities
+        unvisited = _get_unvisited(n, visited)
         
-        priorities = []
-        for candidate_idx in unvisited:
-            priority = tsp_priority(
-                start_idx=start,
-                current_idx=current,
-                candidate_idx=candidate_idx,
-                distances_row=distances_row,
-                candidate_idxs=list(unvisited)
-            )
-            priorities.append(priority)
-        
-        next_city = int(unvisited[_arg_best(np.array(priorities))])
+        # Distances from current city to all cities
+        distances_row = dist[current]
+
+        # Compute priority scores for all unvisited cities
+        priorities = tsp_priority(
+            start_idx=start,
+            current_idx=current,
+            candidate_idxs=list(unvisited),
+            distances_row=distances_row
+        )
+
+        # Select the unvisited city with the highest priority
+        next_city_idx_in_unvisited = _arg_best(priorities)
+        next_city = int(unvisited[next_city_idx_in_unvisited])
+
+        # Update tour
         tour.append(next_city)
         visited.add(next_city)
         current = next_city
