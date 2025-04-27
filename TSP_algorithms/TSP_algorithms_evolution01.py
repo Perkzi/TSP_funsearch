@@ -52,7 +52,7 @@ def tsp_priority(
         total_distance += distances_row[unvisited[i]]
 
     avg_distance = total_distance / n_cities
-    direct_distance = distances_row[candidate_idx]
+    direct_distance = distances_row[current_idx]
 
     if direct_distance < avg_distance:
         priority_score = -(direct_distance - avg_distance)
