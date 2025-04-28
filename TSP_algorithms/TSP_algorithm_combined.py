@@ -140,7 +140,7 @@ def tsp_solve(dist: np.ndarray, start: int = 0) -> list[int]:
         # Update tour
         tour.insert(best_insertion_idx, best_candidate)
         visited.add(best_candidate)
-    # tour = two_opt(tour, dist)
+    tour = two_opt(tour, dist)  
     return tour # 不含重复首尾
 
 def evaluate(instances: dict) -> float:
