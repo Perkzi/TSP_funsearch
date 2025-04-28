@@ -54,28 +54,31 @@ def tsp_priority(
                      If return None
     """
     
+    # Compute the candidate's minimum distance to any visited city (current_tour)
+    min_distance = float('inf')
+    for city in current_tour:
+        d = distances[candidate_idx][city]
+        if d < min_distance:
+            min_distance = d
+
+    # Determine the best insertion index using the extra cost calculation
     n = len(current_tour)
-    
-    # If there's only one city in the tour, simply consider inserting after the start city.
     if n < 2:
         cost_increase = 2 * distances[current_tour[0]][candidate_idx]
-        return (-cost_increase, 1)
-    
-    best_cost_increase = float('inf')
-    best_insertion_idx = len(current_tour)
-    
-    # Evaluate every gap between two consecutive cities in the tour,
-    # wrapping around so that the last city connects to the first.
-    for i in range(n):
-        j = (i + 1) % n  # Wrap-around index for the closed tour
-        cost_increase = (distances[current_tour[i]][candidate_idx] +
-                         distances[candidate_idx][current_tour[j]] -
-                         distances[current_tour[i]][current_tour[j]])
-        if cost_increase < best_cost_increase:
-            best_cost_increase = cost_increase
-            best_insertion_idx = i + 1
+        best_insertion_idx = 1
+    else:
+        best_cost_increase = float('inf')
+        best_insertion_idx = None
+        for i in range(n):
+            j = (i + 1) % n
+            cost_increase = (distances[current_tour[i]][candidate_idx] +
+                             distances[candidate_idx][current_tour[j]] -
+                             distances[current_tour[i]][current_tour[j]])
+            if cost_increase < best_cost_increase:
+                best_cost_increase = cost_increase
+                best_insertion_idx = i + 1
 
-    priority = -best_cost_increase  # Lower cost increase produces a higher priority
+    priority = min_distance  # For farthest insertion, a larger minimum distance is better
     return priority, best_insertion_idx
 
 def tsp_solve(dist: np.ndarray, start: int = 0) -> list[int]:
