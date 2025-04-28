@@ -30,7 +30,7 @@ def tsp_priority(
     current_tour: List[int],
     unvisited: np.ndarray,
     distances: np.ndarray
-) -> float:
+) -> Tuple[float, int]:
     """
     Calculate priority scores for all candidate cities at once.
 
@@ -51,6 +51,7 @@ def tsp_priority(
             - int: The index in current_tour where the candidate city should be inserted.
                      For example, an insertion index of 2 means the candidate is inserted between
                      current_tour[1] and current_tour[2].
+                     If return None
     """
     
     n = len(current_tour)
@@ -61,7 +62,7 @@ def tsp_priority(
         return (-cost_increase, 1)
     
     best_cost_increase = float('inf')
-    best_insertion_idx = None
+    best_insertion_idx = len(current_tour)
     
     # Evaluate every gap between two consecutive cities in the tour,
     # wrapping around so that the last city connects to the first.
@@ -95,16 +96,23 @@ def tsp_solve(dist: np.ndarray, start: int = 0) -> list[int]:
             # distances_row = dist[candidate]
     
             # Compute priority scores for all unvisited cities
-            priority, insertion_idx = tsp_priority(
+            result = tsp_priority(
                 candidate_idx=candidate,
                 current_tour=tour,
                 unvisited=unvisited,
                 distances=dist
             )
+            if isinstance(result, tuple):
+                priority, insertion_idx = result
+            else:
+                priority = result
+                insertion_idx = None
+                
             if priority>best_priority:
                 best_candidate = candidate
                 best_priority = priority 
-                best_insertion_idx = insertion_idx
+                if insertion_idx is not None:
+                    best_insertion_idx = insertion_idx
 
         # Update tour
         tour.insert(best_insertion_idx, best_candidate)
