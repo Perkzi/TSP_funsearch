@@ -95,9 +95,9 @@ def tsp_priority(
                 best_insertion_idx = i + 1
 
     if n < 2:
-    priority = min_distance
+        priority = min_distance
     else:
-    priority = min_distance - (best_cost_increase / n)
+        priority = min_distance - (best_cost_increase / n)
     return priority, best_insertion_idx
 
 def tsp_solve(dist: np.ndarray, start: int = 0) -> list[int]:
