@@ -76,7 +76,7 @@ def tsp_priority(candidate_idx: int, current_tour: List[int], unvisited: np.ndar
     best_insertion_idx = None
     
     if n < 2:
-        cost_increase = 2 * distances[current_tour[0]][candidate_idx]
+        best_cost_increase = 2 * distances[current_tour[0]][candidate_idx]
         best_insertion_idx = 1
     else:
         for i in range(n):
