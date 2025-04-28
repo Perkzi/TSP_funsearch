@@ -64,31 +64,37 @@ def tsp_priority(candidate_idx: int, current_tour: List[int], unvisited: np.ndar
                      current_tour[1] and current_tour[2].
                      If return None
     """
-    min_distance = float('inf')
-    
-    for city in current_tour:
-        d = distances[candidate_idx][city]
-        if d < min_distance:
-            min_distance = d
-            
+    """Even more improved version of tsp_priority function."""
     n = len(current_tour)
-    best_cost_increase = float('inf')
-    best_insertion_idx = None
     
     if n < 2:
-        best_cost_increase = 2 * distances[current_tour[0]][candidate_idx]
+        cost_increase = 2 * distances[current_tour[0]][candidate_idx]
         best_insertion_idx = 1
     else:
+        best_cost_increase = float('inf')
+        best_insertion_idx = None
+        
         for i in range(n):
             j = (i + 1) % n
             cost_increase = (distances[current_tour[i]][candidate_idx] +
                              distances[candidate_idx][current_tour[j]] -
                              distances[current_tour[i]][current_tour[j]])
+            
             if cost_increase < best_cost_increase:
                 best_cost_increase = cost_increase
                 best_insertion_idx = i + 1
-
-    priority = min_distance - (best_cost_increase / n)
+    
+    min_distance = float('inf')
+    for city in current_tour:
+        d = distances[candidate_idx][city]
+        if d < min_distance:
+            min_distance = d
+    
+    priority = min_distance
+    
+    # Custom logic to penalize choosing closest city for next step
+    if priority < 100:  # If the minimum distance is less than 100, penalize the choice
+        priority *= 1.2
     
     return priority, best_insertion_idx
 
@@ -131,7 +137,7 @@ def tsp_solve(dist: np.ndarray, start: int = 0) -> list[int]:
         # Update tour
         tour.insert(best_insertion_idx, best_candidate)
         visited.add(best_candidate)
-    tour = two_opt(tour, dist)
+    # tour = two_opt(tour, dist)
     return tour # 不含重复首尾
 
 def evaluate(instances: dict) -> float:
