@@ -107,9 +107,7 @@ def tsp_solve(dist: np.ndarray, start: int = 0) -> list[int]:
         # Update tour
         tour.append(best_candidate)
         visited.add(best_candidate)
-tour = two_opt(tour, dist) # 加2-opt微调
-return tour # 不含重复首尾
-
+    tour = two_opt(tour, dist) # 加2-opt微调
     return tour # 不含重复首尾
 
 @funsearch.run
