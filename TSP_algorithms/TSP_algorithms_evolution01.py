@@ -1,3 +1,7 @@
+"""
+TSP greedy with one distance row in priority
+"""
+
 specification = r'''
 import numpy as np
 import time
@@ -11,7 +15,30 @@ def tsp_evaluate(route: list[int], distances: np.ndarray) -> float:
     )
     
 # ---- small helpers ----------------------------------------------------- #
+def two_opt(route: list[int], distances: np.ndarray) -> list[int]:
+    """
+    简单版 2-opt 改进器：输入一条路径，局部翻转，直到无法再改进为止。
+    """
+    n = len(route)
+    best_route = route.copy()
+    improved = True
 
+    while improved:
+        improved = False
+        for i in range(1, n - 2):
+            for j in range(i + 1, n):
+                if j - i == 1:  # 连续的两个点，跳过，不反转
+                    continue
+                # 原先的两条边是 (i-1 → i) 和 (j → j+1)
+                # 反转后是 (i-1 → j) 和 (i → j+1)
+                a, b = best_route[i - 1], best_route[i]
+                c, d = best_route[j], best_route[(j + 1) % n]
+                if distances[a, c] + distances[b, d] < distances[a, b] + distances[c, d]:
+                    best_route[i:j+1] = reversed(best_route[i:j+1])
+                    improved = True
+        route = best_route.copy()
+
+    return best_route
 def _get_unvisited(n: int, visited: set[int]) -> np.ndarray:
     mask = np.ones(n, dtype=bool)
     mask[list(visited)] = False
@@ -80,6 +107,9 @@ def tsp_solve(dist: np.ndarray, start: int = 0) -> list[int]:
         # Update tour
         tour.append(best_candidate)
         visited.add(best_candidate)
+tour = two_opt(tour, dist) # 加2-opt微调
+return tour # 不含重复首尾
+
     return tour # 不含重复首尾
 
 @funsearch.run
@@ -112,9 +142,5 @@ def evaluate(instances: dict) -> float:
         else:
             print(f"    路径 = {cost:.0f}, 时间 = {elapsed:.3f}s")
 
-    total_costs = np.array(total_costs)
-    weights = total_costs + 1e-6  # 每个cost作为自己的权重
-    weighted_mean = np.sum(total_costs * weights) / np.sum(weights)
-    
-    return -weighted_mean
+    return -np.mean(total_costs)
 '''
