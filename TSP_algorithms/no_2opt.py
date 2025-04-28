@@ -94,6 +94,9 @@ def tsp_priority(
                 best_cost_increase = cost_increase
                 best_insertion_idx = i + 1
 
+    if n < 2:
+    priority = min_distance
+    else:
     priority = min_distance - (best_cost_increase / n)
     return priority, best_insertion_idx
 
