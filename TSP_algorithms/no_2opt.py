@@ -80,7 +80,7 @@ def tsp_priority(
     # Determine the best insertion index using the extra cost calculation
     n = len(current_tour)
     if n < 2:
-        best_cost_increase = 2 * distances[current_tour[0]][candidate_idx]
+        cost_increase = 2 * distances[current_tour[0]][candidate_idx]
         best_insertion_idx = 1
     else:
         best_cost_increase = float('inf')
