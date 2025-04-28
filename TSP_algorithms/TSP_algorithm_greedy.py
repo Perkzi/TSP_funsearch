@@ -1,5 +1,5 @@
 """
-TSP cheapest with one distance row in priority
+TSP greedy with one distance row in priority
 """
 
 specification = r'''

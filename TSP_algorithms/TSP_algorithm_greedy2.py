@@ -1,5 +1,5 @@
 """
-TSP cheapest with full distance matrix in priority
+TSP greedy with full distance matrix in priority
 """
 
 specification = r'''
@@ -26,8 +26,9 @@ def _arg_best(prio: np.ndarray) -> int:
     
 @funsearch.evolve
 def tsp_priority(
+    start_idx: int,
+    current_idx: int,
     candidate_idx: int,
-    current_tour: List[int],
     unvisited: np.ndarray,
     distances: np.ndarray
 ) -> float:
@@ -35,47 +36,22 @@ def tsp_priority(
     Calculate priority scores for all candidate cities at once.
 
     Args:
+        start_idx: int: Index of the starting city (In the Traveling Salesman Problem (TSP),
+            the solution requires the salesman to return to the starting city after visiting all other cities.).
+        current_idx: int: Index of the current city.
         candidate_idx: int: Index of one candidate city (one selected city in unvisited cities).
-        current_tour: List[int]: Indies of current tour of TSP solving, start city index is current_tour[0],
-            current end city index is current_tour[-1] (In the Traveling Salesman Problem (TSP),
-            the solution requires the salesman to return to the start city after visiting all other cities.)
         unvisited: np.ndarray: Indices of all unvisited cities
         distances: np.ndarray: Distances from any city to any other cities 
-            (distances[candidate_idx][current_tour[-1]] represents the distance from the candidate city to current end city)
-            (distances[current_tour[-1]][unvisited[0]] represents the distance from current end city to an unvisited city).
+            (distances[candidate_idx][current_idx] represents the distance from candidate city to current city)
+            (distances[current_idx][unvisited[0]] represents the distance from current city to an unvisited city).
 
     Returns:
-        Tuple[float, int]:
-            - float: The priority score for the candidate city (higher is more preferred).
-                     This is computed as the negative of the minimal extra cost caused by insertion.
-            - int: The index in current_tour where the candidate city should be inserted.
-                     For example, an insertion index of 2 means the candidate is inserted between
-                     current_tour[1] and current_tour[2].
+        float: priority score for the candidate city.
+                    Higher score means the city is more preferred.
     """
-    
-    n = len(current_tour)
-    
-    # If there's only one city in the tour, simply consider inserting after the start city.
-    if n < 2:
-        cost_increase = 2 * distances[current_tour[0]][candidate_idx]
-        return (-cost_increase, 1)
-    
-    best_cost_increase = float('inf')
-    best_insertion_idx = None
-    
-    # Evaluate every gap between two consecutive cities in the tour,
-    # wrapping around so that the last city connects to the first.
-    for i in range(n):
-        j = (i + 1) % n  # Wrap-around index for the closed tour
-        cost_increase = (distances[current_tour[i]][candidate_idx] +
-                         distances[candidate_idx][current_tour[j]] -
-                         distances[current_tour[i]][current_tour[j]])
-        if cost_increase < best_cost_increase:
-            best_cost_increase = cost_increase
-            best_insertion_idx = i + 1
+    direct_distance = distances[candidate_idx][current_idx]
 
-    priority = -best_cost_increase  # Lower cost increase produces a higher priority
-    return priority, best_insertion_idx
+    return -direct_distance
 
 def tsp_solve(dist: np.ndarray, start: int = 0) -> list[int]:
     n = dist.shape[0]
@@ -88,26 +64,25 @@ def tsp_solve(dist: np.ndarray, start: int = 0) -> list[int]:
         
         best_candidate = -1
         best_priority = -np.inf
-        best_insertion_idx = len(tour)
             
         for candidate in unvisited:
             # Distances from candidate city to all cities
             # distances_row = dist[candidate]
     
             # Compute priority scores for all unvisited cities
-            priority, insertion_idx = tsp_priority(
+            priority = tsp_priority(
+                start_idx=start,
+                current_idx=tour[-1],
                 candidate_idx=candidate,
-                current_tour=tour,
                 unvisited=unvisited,
                 distances=dist
             )
             if priority>best_priority:
                 best_candidate = candidate
                 best_priority = priority 
-                best_insertion_idx = insertion_idx
 
         # Update tour
-        tour.insert(best_insertion_idx, best_candidate)
+        tour.append(best_candidate)
         visited.add(best_candidate)
     return tour # 不含重复首尾
 
