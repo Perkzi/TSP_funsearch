@@ -1,5 +1,5 @@
 """
-TSP cheapest with full distance matrix in priority
+TSP nearest with full distance matrix in priority
 """
 
 specification = r'''
@@ -21,8 +21,30 @@ def _get_unvisited(n: int, visited: set[int]) -> np.ndarray:
     mask[list(visited)] = False
     return np.nonzero(mask)[0]
 
-def _arg_best(prio: np.ndarray) -> int:
-    return int(np.argmax(prio))
+def two_opt(route: list[int], distances: np.ndarray) -> list[int]:
+    """
+    Basic 2-opt optimizer: iteratively reverse segments of the route
+    to eliminate crossings and shorten the total tour length,
+    until no further improvement is possible.
+    """
+    n = len(route)
+    best_route = route.copy()
+    improved = True
+
+    while improved:
+        improved = False
+        for i in range(1, n - 2):
+            for j in range(i + 1, n):
+                if j - i == 1:
+                    continue  # Skip adjacent cities (no meaningful reversal)
+                a, b = best_route[i - 1], best_route[i]
+                c, d = best_route[j], best_route[(j + 1) % n]
+                if distances[a, c] + distances[b, d] < distances[a, b] + distances[c, d]:
+                    best_route[i:j+1] = reversed(best_route[i:j+1])
+                    improved = True
+        route = best_route.copy()
+
+    return best_route
     
 @funsearch.evolve
 def tsp_priority(
@@ -120,6 +142,7 @@ def tsp_solve(dist: np.ndarray, start: int = 0) -> list[int]:
         # Update tour
         tour.insert(best_insertion_idx, best_candidate)
         visited.add(best_candidate)
+    tour = two_opt(tour, dist)
     return tour # 不含重复首尾
 
 @funsearch.run
