@@ -94,7 +94,7 @@ def tsp_priority(
                 best_cost_increase = cost_increase
                 best_insertion_idx = i + 1
 
-    priority = min_distance  # For farthest insertion, a larger minimum distance is better
+    priority = min_distance - (best_cost_increase / n)
     return priority, best_insertion_idx
 
 def tsp_solve(dist: np.ndarray, start: int = 0) -> list[int]:
