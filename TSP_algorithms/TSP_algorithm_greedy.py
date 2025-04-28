@@ -108,7 +108,7 @@ def evaluate(instances: dict) -> float:
         if "optimal_tour" in instance and instance["optimal_tour"] is not None:
             tour = np.asarray(instance["optimal_tour"]).flatten()
             idx = np.arange(len(tour))
-            opt_len = float(dist[tour, tour[(idx + 1) % len(tour)]].sum())
+            opt_len = float(distances[tour, tour[(idx + 1) % len(tour)]].sum())
     
         if opt_len is not None:
             approx = cost / opt_len
