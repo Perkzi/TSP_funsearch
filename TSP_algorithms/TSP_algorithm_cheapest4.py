@@ -1,5 +1,5 @@
 """
-TSP cheapest with one distance row in priority
+TSP_cheapest with full distance matrix in priority
 """
 
 specification = r'''
@@ -30,7 +30,7 @@ def tsp_priority(
     current_idx: int,
     candidate_idx: int,
     unvisited: np.ndarray,
-    distances_row: np.ndarray
+    distances: np.ndarray
 ) -> float:
     """
     Calculate priority scores for all candidate cities at once.
@@ -41,15 +41,15 @@ def tsp_priority(
         current_idx: int: Index of the current city.
         candidate_idx: int: Index of one candidate city (one selected city in unvisited cities).
         unvisited: np.ndarray: Indices of all unvisited cities
-        distances_row: np.ndarray: Distances from the candidate city to all other cities 
-            (distances_row[current_idx] represents the distance from candidate city to current city)
-            (distances_row[unvisited[0]] represents the distance from candidate city to another unvisited city).
+        distances: np.ndarray: Distances from any city to any other cities 
+            (distances[candidate_idx][current_idx] represents the distance from candidate city to current city)
+            (distances[current_idx][unvisited[0]] represents the distance from current city to an unvisited city).
 
     Returns:
         float: priority score for the candidate city.
                     Higher score means the city is more preferred.
     """
-    direct_distance = distances_row[current_idx]
+    direct_distance = distances[candidate_idx][current_idx]
 
     return -direct_distance
 
@@ -67,7 +67,7 @@ def tsp_solve(dist: np.ndarray, start: int = 0) -> list[int]:
             
         for candidate in unvisited:
             # Distances from candidate city to all cities
-            distances_row = dist[candidate]
+            # distances_row = dist[candidate]
     
             # Compute priority scores for all unvisited cities
             priority = tsp_priority(
@@ -75,7 +75,7 @@ def tsp_solve(dist: np.ndarray, start: int = 0) -> list[int]:
                 current_idx=tour[-1],
                 candidate_idx=candidate,
                 unvisited=unvisited,
-                distances_row=distances_row
+                distances=dist
             )
             if priority>best_priority:
                 best_candidate = candidate
